@@ -1,0 +1,11 @@
+# pre-commit: fast local gate (php -l + eslint on staged files)
+#!/usr/bin/env bash
+set -euo pipefail
+STAGED_PHP=$(git diff --cached --name-only --diff-filter=ACM | grep '\.php$' || true)
+if [ -n "$STAGED_PHP" ]; then
+  echo "$STAGED_PHP" | xargs -n1 php -l > /dev/null
+fi
+STAGED_JS=$(git diff --cached --name-only --diff-filter=ACM | grep -E 'resources/js/.*\.js$' || true)
+if [ -n "$STAGED_JS" ] && [ -f node_modules/.bin/eslint ]; then
+  echo "$STAGED_JS" | xargs node_modules/.bin/eslint --no-warn-ignored || exit 1
+fi

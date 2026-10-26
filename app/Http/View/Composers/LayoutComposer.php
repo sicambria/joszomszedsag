@@ -20,14 +20,15 @@
       if(Auth::user()) {
         $current_user = Auth::user();
         $current_user->volunteer_data = UserVolunteerData::where('user_id', $current_user->id)->first();
-        $current_user->user_role = Role::find($current_user->role_id)->display_name;
-        $current_user->home_address = Address::find($current_user->home_address_id);
-        $current_user->volunteer_addresses = DB::select('
-          SELECT a.*
+        $current_user->user_role = optional(Role::find($current_user->role_id))->display_name;
+        $current_user->home_address = $current_user->home_address_id ? Address::find($current_user->home_address_id) : null;
+        $current_user->volunteer_addresses = DB::select(
+          'SELECT a.*
           FROM `addresses` a
           LEFT JOIN `user_data_volunteer_addresses` udva ON a.`id` = udva.`address_id`
           RIGHT JOIN `user_data_volunteer` udv ON udva.`user_data_volunteer_id` = udv.`id`
-          WHERE udv.`user_id` = '.$current_user->id
+          WHERE udv.`user_id` = ?',
+          [$current_user->id]
         );
 
         $current_user->open_help_requests_count = UserSupportData::where(

@@ -8,6 +8,7 @@ use App\Notifications\UserRegisteredNotification;
 use App\User;
 use App\UserSupportData;
 use App\UserVolunteerData;
+use App\Support\RoleIds;
 use Illuminate\Http\Request;
 use App\City;
 use Illuminate\Support\Facades\Auth;
@@ -16,32 +17,39 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class FrontIndexController extends Controller {
-  
+
   public function volunteer_form() {
-    if(Auth::check()) return redirect(route('login'));
+    if(Auth::check()) return redirect(route('admin_home'));
     return view('forms.volunteer');
   }
 
   public function helprequest_form() {
-    if(Auth::check()) return redirect(route('login'));
+    if(Auth::check()) return redirect(route('admin_home'));
     return view('forms.helprequest');
   }
 
-  public function post_code_ajax() {
-    $fieldValue = request('post_code');
-
-    $select = DB::select('
-      SELECT c.*
+  public function post_code_ajax(Request $request) {
+    $validated = $this->validate($request, [
+      'post_code' => 'required|string|size:1|regex:/^[0-9]$/',
+    ]);
+    // Single-digit prefix only + LIMIT: autocomplete must not dump tables.
+    $select = DB::select(
+      'SELECT c.*
       FROM `cities` c
       JOIN `available_post_codes` apc ON c.`post_code` = apc.`post_code`
-      WHERE c.`post_code` LIKE "'.$fieldValue.'%";'
+      WHERE c.`post_code` LIKE CONCAT(?, "%") LIMIT 20',
+      [$validated['post_code']]
     );
 
-    return json_encode($select);
+    return response()->json($select);
   }
 
   public function register(Request $request) {
-    if($request->user_role == 6) {
+    $this->validate($request, [
+      'user_role' => 'required|integer|in:6,7',
+    ]);
+    $roleId = (int) $request->input('user_role');
+    if($roleId === RoleIds::VOLUNTEER) {
       //VOLUNTEER
       $this->validate($request,[
         'first_name' => 'required|regex:/^[\pL\pM\pN\s\.\-]+$/u',
@@ -76,7 +84,7 @@ class FrontIndexController extends Controller {
       }
       else return redirect(route('onkentes-regisztracio'));
       
-    } else if($request->user_role == 7) {
+    } else if($roleId === RoleIds::REQUESTER) {
       //SUPPORT
       $this->validate($request,[
         'first_name' => 'required|regex:/^[\pL\pM\pN\s\.\-]+$/u',
@@ -121,17 +129,21 @@ class FrontIndexController extends Controller {
   
   public function saveUserBasic(Request $request)
   {
+    $roleId = (int) $request->input('user_role');
+    if (!in_array($roleId, RoleIds::registrationRoles(), true)) {
+      abort(422, 'Invalid role.');
+    }
     $user = new User();
     $user->email = $request->email;
-    $user->role_id = $request->user_role;
+    $user->role_id = $roleId;
     $user->first_name = $request->first_name;
     $user->date_birth = $request->birth_year;
     $user->last_name = $request->last_name;
     $user->display_name = $request->display_name;
     $user->facebook_profile = $request->facebook_profile ?? '';
     $user->phone_number = $request->phone;
-    $user->home_address_id = $this->saveHomeAddress($request)->id;;
-    
+    $user->home_address_id = $this->saveHomeAddress($request)->id;
+
     if($user->save()) {
       return $user;
     } else {
@@ -155,25 +167,32 @@ class FrontIndexController extends Controller {
     $res = true;
     $address_ids = array();
     $addCounter = 0;
-    for($i = 0; $i < count($request->area_street); $i++) {
-      if($request->area_street[$i]) {
+    $areaStreets = is_array($request->input('area_street')) ? $request->input('area_street') : [];
+    $areaPostcodes = is_array($request->input('area_postcode')) ? $request->input('area_postcode') : [];
+    $areaCities = is_array($request->input('area_city')) ? $request->input('area_city') : [];
+    $areaFrom = is_array($request->input('area_from-house-number')) ? $request->input('area_from-house-number') : [];
+    $areaTo = is_array($request->input('area_to-house-number')) ? $request->input('area_to-house-number') : [];
+    for($i = 0; $i < count($areaStreets); $i++) {
+      if(!empty($areaStreets[$i])) {
         $address = Address::firstOrCreate([
-          'post_code' => $request->area_postcode[$i],
-          'city' => $request->area_city[$i],
-          'street' => $request->area_street[$i],
-          'house_number' => isset($request->{'area_from-house-number'}[$i])?trim($request->{'area_from-house-number'}[$i], ' ,.-*_:/'):null,
-          'house_number_2' => isset($request->{'area_to-house-number'}[$i])?trim($request->{'area_to-house-number'}[$i], ' ,.-*_:/'):null,
+          'post_code' => isset($areaPostcodes[$i]) ? $areaPostcodes[$i] : null,
+          'city' => isset($areaCities[$i]) ? $areaCities[$i] : null,
+          'street' => $areaStreets[$i],
+          'house_number' => isset($areaFrom[$i])?trim($areaFrom[$i], ' ,.-*_:/'):null,
+          'house_number_2' => isset($areaTo[$i])?trim($areaTo[$i], ' ,.-*_:/'):null,
         ]);
         $address_ids [] = $address->id;
-        $res &= DB::insert(
-          'INSERT IGNORE INTO `user_data_volunteer_addresses` (`user_data_volunteer_id`, `address_id`)
-                 VALUES ('.$volunteer_data_id.', '.$address->id.')'
-        );
+        $res &= DB::table('user_data_volunteer_addresses')->insertOrIgnore([
+          ['user_data_volunteer_id' => (int) $volunteer_data_id, 'address_id' => (int) $address->id],
+        ]) !== false;
         $addCounter = $i;
       }
     }
-    saveLog(UserVolunteerData::find($volunteer_data_id)->user_id, 'Hozzáadott '.$addCounter.'db önkéntes címet.');
-    
+    $volunteerData = UserVolunteerData::find($volunteer_data_id);
+    if ($volunteerData) {
+      saveLog($volunteerData->user_id, 'Hozzáadott '.$addCounter.'db önkéntes címet.');
+    }
+
     return $res;
   }
   
@@ -197,29 +216,33 @@ class FrontIndexController extends Controller {
     $userData = new UserSupportData;
     $userData->user_id = $user_id;
     $userData->help_request = $request->help_types;
-    $userData->has_coronavirus = $request->has_corona=='on' ? 1 : 0;
-    $userData->is_in_quarantine = $request->in_quarantine=='on' ? 1 : 0;
-    $userData->has_chronic_illness = $request->has_chronic=='on' ? 1 : 0;
-    $userData->is_healthy = $request->is_healthy=='on' ? 1 : 0;
+    $userData->has_coronavirus = isset($request->has_corona) && $request->has_corona=='on' ? 1 : 0;
+    $userData->is_in_quarantine = isset($request->in_quarantine) && $request->in_quarantine=='on' ? 1 : 0;
+    $userData->has_chronic_illness = isset($request->has_chronic) && $request->has_chronic=='on' ? 1 : 0;
+    $userData->is_healthy = isset($request->is_healthy) && $request->is_healthy=='on' ? 1 : 0;
     $userData->description = $request->situation_desc;
     $userData->volunteer_user_id = null;
     $userData->status = 2;
     $userData->address_id = $address_id;
     return $userData->save();
   }
-  
+
   public function getVolunteers($address)
   {
+    if (!$address) {
+      return [];
+    }
     $user_address = $address;
-    
-    $volunteer_data = DB::select('
-      SELECT
+
+    $volunteer_data = DB::select(
+      'SELECT
         udv.`user_id`,
         a.*
       FROM `user_data_volunteer` udv
       LEFT JOIN `user_data_volunteer_addresses` udva ON udva.`user_data_volunteer_id` = udv.`id`
       RIGHT JOIN `addresses` a ON a.`id` = udva.`address_id`
-      WHERE a.`post_code` = '.$user_address->post_code.' AND a.`street`=\''.$user_address->street.'\''
+      WHERE a.`post_code` = ? AND a.`street` = ?',
+      [$user_address->post_code, $user_address->street]
     );
     $volunteer_ids = array();
     foreach ($volunteer_data as $vd) {

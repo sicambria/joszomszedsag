@@ -1,5 +1,5 @@
-# Base image
-FROM php:7.4-fpm-alpine
+# Base image — pinned; PHP 7.4 is required by Laravel 7 (EOL, see BACKLOG MOD-01).
+FROM php:7.4.33-fpm-alpine3.16
 
 COPY ./startup.sh /startup
 
@@ -17,10 +17,9 @@ RUN apk --no-cache add \
     supervisor \
     bash \
     pcre-dev ${PHPIZE_DEPS} \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer \
-    && composer global require "hirak/prestissimo:^0.3"
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
-# Install php extensions
+# Install php extensions (pinned via pecl versions for reproducibility)
 RUN apk --no-cache add \
     # mbstring
     && docker-php-ext-install mbstring \
@@ -28,24 +27,18 @@ RUN apk --no-cache add \
     && apk add icu-dev && docker-php-ext-install -j$(nproc) intl \
     # zip
     && apk add zlib-dev libzip libzip-dev && docker-php-ext-install -j$(nproc) zip \
-    # imagik
+    # imagick
     && apk add imagemagick-dev \
     && pecl channel-update pecl.php.net \
-    && yes | pecl install imagick \
+    && yes | pecl install imagick-3.7.0 \
     && docker-php-ext-enable imagick \
-    # ssh2 // TODO
-#    && apk add autoconf g++ libtool make pcre-dev libssh2 libssh2-dev \
-#    && yes | pecl install ssh2-1.1.2 \
-#    && docker-php-ext-enable ssh2 \
     # mysql
     && docker-php-ext-install mysqli && docker-php-ext-install pdo_mysql \
     # redis
-    && apk add zstd-dev && yes | pecl install igbinary redis \
+    && apk add zstd-dev && yes | pecl install igbinary-3.2.15 redis-5.3.7 \
     && docker-php-ext-enable igbinary redis \
     # sockets
     && docker-php-ext-install sockets
-    # mongo
-    #&& yes | pecl install mongodb && docker-php-ext-enable mongodb
 
 # Clean up
 RUN rm -rf /etc/nginx/conf.d/default.conf \

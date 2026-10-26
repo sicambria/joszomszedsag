@@ -1,46 +1,55 @@
-version: "3"
+version: "3.8"
 
 services:
-
-  # Proxy: we use it to be able to connect to http port 80 to the application
-  # (!) Make sure you only have one proxy container running
-  # (!) Always docker-compose stop before starting another compose stack
-  nginx-proxy:
-    image: jwilder/nginx-proxy
-    ports:
-      - "80:80"
-    volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-
-  # MySQL Database (persistent data)
-  mysql:
-    image: mysql
-    command: --default-authentication-plugin=mysql_native_password
-    restart: always
-    environment:
-        MYSQL_DATABASE: joszomszedsag
-        MYSQL_ROOT_PASSWORD: secret
-    expose:
-      - 3301
-
   # Caching service
+  mysql:
+    image: mysql:8.0.36
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-joszomszedsag}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
+    expose:
+      - 3306
+    ports:
+      - "${DB_EXPOSE_PORT:-33060}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD:-secret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   redis:
-    image: redis
+    image: redis:6.2-alpine
+    restart: unless-stopped
     expose:
       - 6379
+    volumes:
+      - redis-data:/data
 
-  # Application: https://github.com/Kr4z4r/joszomszedsag/blob/master/docker/Readme.md
-  # If you'd like to build the image yourself, replace image: with build: docker/build
+  # Application: prefer building locally (docker/build). The public
+  # adrian7/joszomszedsag-v1.0 image is opaque — do not use in production.
   app:
-    image: adrian7/joszomszedsag-v1.0
+    build: docker/build
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
     expose:
       - 80
+    ports:
+      - "${APP_PORT:-8080}:80"
+    env_file:
+      - .env
     environment:
-      VIRTUAL_HOST: joszomszedsag.local
-    #env_file:
-    #  - .env
+      VIRTUAL_HOST: ${VIRTUAL_HOST:-joszomszedsag.local}
+      DB_HOST: mysql
+      REDIS_HOST: redis
     volumes:
       - .:/var/www
+
+volumes:
+  mysql-data:
+  redis-data:

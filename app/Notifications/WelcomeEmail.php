@@ -43,7 +43,7 @@ class WelcomeEmail extends Notification
    */
   public function toMail($notifiable)
   {
-    if($this->user->role_id == 7) return true;
+    if((int) $this->user->role_id === \App\Support\RoleIds::REQUESTER) return true;
     $site_title = Voyager::setting('site.title') ?? config('app.name');
     return (new MailMessage)
       ->subject(Lang::get('Fontos tudnivalók - '.$site_title))

@@ -10,15 +10,15 @@ class ErrorController extends Controller {
     return view('error_reporting');
   }
   public function submit(Request $request) {
-    
+
     $validatedData = $request->validate(array(
-      'email' => 'required|email',
-      'desc' => 'required',
-      'privacy_policy' => 'required'
+      'email' => 'required|email|max:255',
+      'desc' => 'required|string|max:2000',
+      'privacy_policy' => 'accepted'
     ));
-    
-    $email = $request->input('email');
-    $description = $request->input('desc');
+
+    $email = $validatedData['email'];
+    $description = strip_tags($validatedData['desc']);
     $error = new Error();
     $error->email = $email;
     $error->description = $description;

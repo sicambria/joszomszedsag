@@ -51,11 +51,13 @@ class VolunteerTextNotification extends Notification
   public function toMail($notifiable) {
     $site_title = Voyager::setting('site.title');
 
-    $fromWho = $this->fromUser->role_id == 7?'Segítségkérő':'Vigyázó';
+    $fromWho = (int) $this->fromUser->role_id === \App\Support\RoleIds::REQUESTER ?'Segítségkérő':'Vigyázó';
 
-    $userAddress = Address::find($this->fromUser->home_address_id);
+    $userAddress = $this->fromUser->home_address_id ? Address::find($this->fromUser->home_address_id) : null;
 
-    $displayAddress = $userAddress->post_code.' '.$userAddress->city.', '.$userAddress->street.' '.$userAddress->house_number;
+    $displayAddress = $userAddress
+      ? $userAddress->post_code.' '.$userAddress->city.', '.$userAddress->street.' '.$userAddress->house_number
+      : '';
 
     return (new MailMessage)
       ->subject(Lang::get('Új üzenet - '.$site_title))

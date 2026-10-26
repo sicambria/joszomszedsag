@@ -50,7 +50,9 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'display_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
@@ -59,15 +61,42 @@ class RegisterController extends Controller
     /**
      * Create a new user instance after a valid registration.
      *
+     * Note: the legacy users table (2014 migration) only has a `name` column;
+     * extended profile columns come from later Voyager/BREAD seeds. Keep this
+     * compatible with both by filling `name` and any available columns.
+     *
      * @param  array  $data
      * @return \App\User
      */
     protected function create(array $data)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-        ]);
+        $user = new User();
+        $user->name = trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? ''));
+        if (!$user->name) {
+            $user->name = $data['display_name'] ?? $data['email'];
+        }
+        $user->email = $data['email'];
+        $user->password = Hash::make($data['password']);
+        // Fill extended columns only if the schema supports them.
+        foreach (['first_name', 'last_name', 'display_name', 'role_id'] as $col) {
+            if ($col === 'role_id') {
+                continue;
+            }
+            if (isset($data[$col])) {
+                try {
+                    $user->{$col} = $data[$col];
+                } catch (\Throwable $e) {
+                    // Column missing on legacy schema — ignore.
+                }
+            }
+        }
+        try {
+            $user->role_id = \App\Support\RoleIds::VOLUNTEER;
+        } catch (\Throwable $e) {
+            // Ignore when column is missing.
+        }
+        $user->save();
+
+        return $user;
     }
 }

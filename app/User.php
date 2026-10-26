@@ -44,7 +44,17 @@
     
     public function __construct(array $attributes = []) {
       parent::__construct($attributes);
-      foreach (Role::all() as $role) {
+      // Cache roles per-request: the original Role::all() on every
+      // instantiation caused N+1 queries and broke artisan when DB was down.
+      static $cached = null;
+      if ($cached === null) {
+        try {
+          $cached = Role::all();
+        } catch (\Throwable $e) {
+          $cached = collect();
+        }
+      }
+      foreach ($cached as $role) {
         $this->user_roles[$role->id] = $role->name;
       }
     }
@@ -57,7 +67,9 @@
     }
     
     public function canOpen() {
-      Role::all(['name']);
+      // @todo: dead code — original body was a no-op query. Kept intentionally
+      // side-effect free until open-request visibility rules are specified.
+      return false;
     }
     
     

@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  php:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          extensions: mbstring, intl, zip, pdo_mysql, pdo_sqlite, gd
+          coverage: none
+      - run: composer validate --no-check-lock
+      - run: composer install --no-progress --prefer-dist --no-interaction
+      - run: find app routes database -name '*.php' -print0 | xargs -0 -n1 php -l
+      - run: vendor/bin/phpunit --testdox
+
+  node:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: npm
+      - run: npm ci
+      - run: npm run production
+      - run: npm audit --audit-level=high

@@ -19,8 +19,8 @@ Route::get('/', function () {
 
 Route::get('/onkentes-regisztracio', 'FrontIndexController@volunteer_form')->name('onkentes-regisztracio');
 Route::get('/segitseg-keres', 'FrontIndexController@helprequest_form')->name('segitseg-keres');
-Route::post('/postcode-autocomplete', 'FrontIndexController@post_code_ajax')->name('post_code_autocomplete');
-Route::post('/form-submit', 'FrontIndexController@register');
+Route::post('/postcode-autocomplete', 'FrontIndexController@post_code_ajax')->middleware('throttle:30,1')->name('post_code_autocomplete');
+Route::post('/form-submit', 'FrontIndexController@register')->middleware('throttle:10,1');
 
 Route::group(['prefix' => 'administration'], function () {
     Voyager::routes();
@@ -50,4 +50,4 @@ Route::get('/jogi_nyilatkozat', 'LegalController@legal_text')->name('legal');
 Route::get('/adatvedelmi_nyilatkozat', 'LegalController@privacy_text')->name('privacy');
 Route::get('/cookie_hasznalati_szabalyzat', 'LegalController@cookie_text')->name('cookie');
 Route::get('/hibabejelentes', 'ErrorController@index')->name('error_reporting');
-Route::post('/hiba_bekuldes', 'ErrorController@submit')->name('error_sending');
+Route::post('/hiba_bekuldes', 'ErrorController@submit')->middleware('throttle:10,1')->name('error_sending');

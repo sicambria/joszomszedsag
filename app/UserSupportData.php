@@ -42,20 +42,26 @@ class UserSupportData extends Model {
     $current_time = now()->timestamp;
     $yesterday = $current_time - (new self)->one_day;
     $two_days_before = $current_time - (2 * (new self)->one_day);
-    $all_help_requests = UserSupportData::whereRaw('(status != ? AND status != ?) AND volunteer_user_id IS NOT NULL', [0, 1])->get();
-    foreach($all_help_requests as $help_request) {
-      $volunteer = User::find($help_request->volunteer_user_id);
-      $requester = User::find($help_request->user_id);
-      $request_time = strtotime($help_request->updated_at);
-      if($request_time < $yesterday && $request_time > $two_days_before) {
-        (new self)->saveNotification($help_request->id, $volunteer, 1, 6);
-        continue;
+    $all_help_requests = UserSupportData::whereRaw('(status != ? AND status != ?) AND volunteer_user_id IS NOT NULL', [0, 1])
+      ->orderBy('id')->chunk(200, function ($chunk) use ($yesterday, $two_days_before) {
+      foreach($chunk as $help_request) {
+        $volunteer = $help_request->volunteer_user_id ? User::find($help_request->volunteer_user_id) : null;
+        $requester = User::find($help_request->user_id);
+        if (!$volunteer || !$requester) {
+          continue;
+        }
+        $request_time = strtotime($help_request->updated_at);
+        if($request_time < $yesterday && $request_time > $two_days_before) {
+          (new self)->saveNotification($help_request->id, $volunteer, 1, 6);
+          continue;
+        }
+        else {
+          (new self)->saveNotification($help_request->id, $volunteer, 2, 6);
+          (new self)->saveNotification($help_request->id,$requester, 2, 7);
+        }
       }
-      else {
-        (new self)->saveNotification($help_request->id, $volunteer, 2, 6);
-        (new self)->saveNotification($help_request->id,$requester, 2, 7);
-      }
-    }
+    });
+    return $all_help_requests;
   }
   private function saveNotification($support_id, $user, $type, $role_id) {
     switch($type) {
@@ -95,18 +101,26 @@ class UserSupportData extends Model {
   public static function requestCompleted() {
     $current_time = now()->timestamp;
     $yesterday = $current_time - (new self)->one_day;
-    $all_help_requests = UserSupportData::whereRaw('status = ? OR status = ?', [4,5])->get();
-    foreach ($all_help_requests as $request) {
+    UserSupportData::whereRaw('status = ? OR status = ?', [4,5])->orderBy('id')->chunk(200, function ($chunk) use ($current_time, $yesterday) {
+    foreach ($chunk as $request) {
       $request_time = strtotime($request->updated_at);
       if($request_time < $yesterday) {
         $support_request = UserSupportData::find($request->id);
-        $volunteer = User::find($request->volunteer_user_id);
+        if (!$support_request) {
+          continue;
+        }
+        $volunteer = $request->volunteer_user_id ? User::find($request->volunteer_user_id) : null;
         $requester = User::find($request->user_id);
-        $volunteer->notify(new RequestCompleted($volunteer, $request->status, 1));
-        $requester->notify(new RequestCompleted($requester, $request->status, 1));
+        if ($volunteer) {
+          $volunteer->notify(new RequestCompleted($volunteer, $request->status, 1));
+        }
+        if ($requester) {
+          $requester->notify(new RequestCompleted($requester, $request->status, 1));
+        }
         $support_request->status = 1;
         $support_request->save();
       }
     }
+    });
   }
 }

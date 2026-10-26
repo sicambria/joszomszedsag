@@ -2,6 +2,16 @@
 /public/hot
 /public/storage
 /public/tools
+/public/js/app.js
+/public/js/front.js
+/public/js/vendor-materialize.js
+/public/js/plugins.js
+/public/js/dashboard/
+/public/css/app.css
+/public/css/materialize.css
+/public/css/dashboard/
+npm-debug.log
+yarn-error.log
 /storage/*.key
 /vendor
 .env
@@ -9,7 +19,5 @@
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
-npm-debug.log
-yarn-error.log
 
 .idea

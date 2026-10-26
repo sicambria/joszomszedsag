@@ -46,7 +46,7 @@ class StatusCanChange extends Notification
      */
     public function toMail($notifiable)
     {
-      if($this->role_id == 7) {
+      if((int) $this->role_id === \App\Support\RoleIds::REQUESTER) {
         return (new MailMessage)
           ->subject(Lang::get('Egyik kérelmének státusza megváltoztatható - '.Voyager::setting('site.title')))
           ->greeting(Lang::get('Tisztelt '.$this->user->first_name.' '.$this->user->last_name).'!')
