@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Lang;
-use TCG\Voyager\Facades\Voyager;
+
 
 class WelcomeEmail extends Notification
 {
@@ -44,7 +44,7 @@ class WelcomeEmail extends Notification
   public function toMail($notifiable)
   {
     if((int) $this->user->role_id === \App\Support\RoleIds::REQUESTER) return true;
-    $site_title = Voyager::setting('site.title') ?? config('app.name');
+    $site_title = config('site.title') ?? config('app.name');
     return (new MailMessage)
       ->subject(Lang::get('Fontos tudnivalók - '.$site_title))
       ->greeting(Lang::get('Tisztelt '.$this->user->first_name.' '.$this->user->last_name).'!')

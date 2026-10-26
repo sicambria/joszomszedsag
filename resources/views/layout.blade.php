@@ -5,7 +5,7 @@
     <meta name="token" content="{{ Session::token() }}">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Kezdőlap') - {{ \TCG\Voyager\Facades\Voyager::setting('site.title') }}</title>
+    <title>@yield('title', 'Kezdőlap') - {{ config('site.title') }}</title>
     @include('helpers.css')
 </head>
 <body>
@@ -18,7 +18,6 @@
     <div class="push"></div>
 </div>
 @include('partials.footer')
-@include('cookieConsent::index')
 <div id="toTop"><i class="material-icons">arrow_drop_up</i></div>
 </body>
 @include('helpers.js')

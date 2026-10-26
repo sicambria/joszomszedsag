@@ -1,8 +1,8 @@
 <nav>
     <div class="nav-wrapper container">
         <a href="/" class="brand-logo">
-            @if (\TCG\Voyager\Facades\Voyager::setting('site.logo'))
-                <img src="{{ url('storage/'.\TCG\Voyager\Facades\Voyager::setting('site.logo')) }}" />
+            @if (config('site.logo'))
+                <img src="{{ config('site.logo') }}" />
             @else
                 @include('helpers.header_logo')
             @endif

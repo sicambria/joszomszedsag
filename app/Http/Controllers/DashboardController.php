@@ -3,8 +3,6 @@ namespace App\Http\Controllers;
 use App\Address;
 use App\AddressType;
 use App\HelpType;
-use App\Notifications\RequestAccept;
-use App\Notifications\RequestDrop;
 use App\Notifications\StatusChange;
 use App\Notifications\SupportRequest;
 use App\Notifications\VolunteerTextNotification;
@@ -12,7 +10,6 @@ use App\User;
 use App\UserSupportData;
 use App\UserVolunteerData;
 use App\Support\RoleIds;
-use Barryvdh\Debugbar\LaravelDebugbar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -20,9 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-use PhpParser\Node\Expr\Cast\Object_;
-use TCG\Voyager\Models\Role;
-use TCG\Voyager\Voyager;
+use App\Role;
 
 class DashboardController extends \App\Http\Controllers\Controller {
   public $user_role;

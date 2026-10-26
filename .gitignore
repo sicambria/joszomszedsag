@@ -2,6 +2,7 @@
 /public/hot
 /public/storage
 /public/tools
+/public/build
 /public/js/app.js
 /public/js/front.js
 /public/js/vendor-materialize.js

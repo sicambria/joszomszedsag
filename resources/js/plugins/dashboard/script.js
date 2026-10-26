@@ -1,3 +1,6 @@
+import $ from 'jquery';
+import '../materialize/js/bin/materialize.min.js';
+
 $(document).ready(function() {
     $('#open-request-table').show().DataTable( {
         order: [[ 3, 'asc' ], [ 0, 'asc' ]],

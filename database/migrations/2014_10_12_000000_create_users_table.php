@@ -18,7 +18,11 @@ class CreateUsersTable extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            // Nullable on purpose: the volunteer/requester forms create
+            // passwordless accounts; the password is adopted at first login
+            // (see LoginController::login). Legacy MySQL installs that ran
+            // the original NOT NULL variant need a manual ALTER (docs/OPERATIONS.md).
+            $table->string('password')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

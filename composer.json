@@ -8,27 +8,28 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.2.5",
-        "fideloper/proxy": "^4.4.2",
-        "fruitcake/laravel-cors": "^1.3",
-        "guzzlehttp/guzzle": "^6.5.8",
-        "laravel/framework": "^7.30.6",
-        "laravel/tinker": "^2.7",
-        "spatie/laravel-cookie-consent": "^2.12",
-        "tcg/voyager": "^1.5"
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.8.2",
+        "laravel/framework": "^12.0",
+        "laravel/tinker": "^2.10.1",
+        "laravel/ui": "^4.6",
+        "spatie/laravel-cookie-consent": "^3.5"
     },
     "require-dev": {
-        "facade/ignition": "^2.17",
-        "fakerphp/faker": "^1.21",
-        "mockery/mockery": "^1.5",
-        "nunomaduro/collision": "^4.3",
-        "phpunit/phpunit": "^8.5",
-        "roave/security-advisories": "dev-latest"
+        "fakerphp/faker": "^1.23",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.6",
+        "phpunit/phpunit": "^11.5",
+        "roave/security-advisories": "dev-latest",
+        "spatie/laravel-ignition": "^2.9"
     },
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": true
+        }
     },
     "extra": {
         "laravel": {
@@ -40,12 +41,10 @@
             "app/Helpers.php"
         ],
         "psr-4": {
-            "App\\": "app/"
-        },
-        "classmap": [
-            "database/seeds",
-            "database/factories"
-        ]
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
     },
     "autoload-dev": {
         "psr-4": {
@@ -65,8 +64,15 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ],
-        "test": "@php vendor/bin/phpunit --testdox",
-        "lint": "@php -l app/Helpers.php",
-        "audit": "@composer audit"
+        "test": [
+            "@php artisan config:clear --ansi",
+            "@php vendor/bin/phpunit --testdox"
+        ],
+        "test-coverage": [
+            "@php vendor/bin/phpunit --coverage-text"
+        ],
+        "lint": [
+            "@php -l app/Helpers.php"
+        ]
     }
 }

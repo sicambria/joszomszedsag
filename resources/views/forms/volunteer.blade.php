@@ -55,7 +55,7 @@
                             <input required name="phone" id="phone" type="text" class="validate" value="{{ old('phone') }}">
                             <label for="phone">Mobil</label>
                         </div>
-                        @if (setting('site.facebook_profile') == 1)
+                        @if (config('site.facebook_profile') == 1)
                             <div class="input-field col s12 m4">
                                 <input name="facebook_profile" id="facebook_profile" type="text" value="{{ old('facebook_profile') }}">
                                 <label for="facebook_profile">Facebook profil</label>

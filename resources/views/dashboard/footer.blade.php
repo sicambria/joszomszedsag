@@ -18,7 +18,7 @@
                 <ul class="nav">
                     <li class="nav-item">
                         <span>&copy; {{ date('Y') }} - {{ __('Jószomszédság Vigyázó Hálózata') }} </span>
-                        <a class="right" href="https://joszomszedsag.com" target="_blank">@include('helpers.logo')</a>
+                        <a class="right" href="https://github.com/sicambria/joszomszedsag" target="_blank">@include('helpers.logo')</a>
                     </li>
                 </ul>
             </div>

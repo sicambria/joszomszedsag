@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Lang;
-use TCG\Voyager\Facades\Voyager;
+
 use App\RequestStatus;
 
 class StatusChange extends Notification
@@ -57,7 +57,7 @@ class StatusChange extends Notification
   public function toMail($notifiable) {
     
     
-    $site_title = Voyager::setting('site.title');
+    $site_title = config('site.title');
     if($this->user_type == 'volunteer') {
       if(in_array($this->new_status, array(0, 2))) {
         return (new MailMessage)

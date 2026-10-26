@@ -10,7 +10,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\HtmlString;
-use TCG\Voyager\Facades\Voyager;
+
 
 class BulkEmail extends Notification
 {
@@ -49,7 +49,7 @@ class BulkEmail extends Notification
     public function toMail($notifiable)
     {
       return (new MailMessage)
-        ->subject($this->mail_data->subject.' - '.Voyager::setting('site.title'))
+        ->subject($this->mail_data->subject.' - '.config('site.title'))
         ->greeting(Lang::get('Tisztelt '.$this->user->first_name.' '.$this->user->last_name).'!')
         ->line(new HtmlString($this->mail_data->mail))
         ->line('')

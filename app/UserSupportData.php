@@ -4,11 +4,13 @@ namespace App;
 
 use App\Notification;
 use App\Notifications\RequestCompleted;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Notifications\NotCompleted;
 use App\Notifications\StatusCanChange;
 
 class UserSupportData extends Model {
+  use HasFactory;
   private $one_day  = 86400;
   protected $table='user_data_support';
   public $fillable = [

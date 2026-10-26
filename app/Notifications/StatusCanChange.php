@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Lang;
-use TCG\Voyager\Facades\Voyager;
+
 
 class StatusCanChange extends Notification
 {
@@ -48,7 +48,7 @@ class StatusCanChange extends Notification
     {
       if((int) $this->role_id === \App\Support\RoleIds::REQUESTER) {
         return (new MailMessage)
-          ->subject(Lang::get('Egyik kérelmének státusza megváltoztatható - '.Voyager::setting('site.title')))
+          ->subject(Lang::get('Egyik kérelmének státusza megváltoztatható - '.config('site.title')))
           ->greeting(Lang::get('Tisztelt '.$this->user->first_name.' '.$this->user->last_name).'!')
           ->line(Lang::get('Azért kapja Ön ezt az emailt, mert az Ön által létrehozott egyik kérelme 2 napja nem lett teljesítve.'))
           ->line(Lang::get('A kérelem státuszát meg tudja változtatni.'))
@@ -56,7 +56,7 @@ class StatusCanChange extends Notification
       }
       else {
         return (new MailMessage)
-          ->subject(Lang::get('Egyik elvállalt kérelmének státusza megváltoztatható - '.Voyager::setting('site.title')))
+          ->subject(Lang::get('Egyik elvállalt kérelmének státusza megváltoztatható - '.config('site.title')))
           ->greeting(Lang::get('Tisztelt '.$this->user->first_name.' '.$this->user->last_name).'!')
           ->line(Lang::get('Azért kapja Ön ezt az emailt, mert az Ön által elvállalt egyik kérelme 2 napja nem lett teljesítve.'))
           ->line(Lang::get('A kérelmező mostantól meg tudja változtatni a kérelem státuszát'));

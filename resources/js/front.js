@@ -1,3 +1,7 @@
+import $ from 'jquery';
+import './plugins/materialize/js/bin/materialize.min.js';
+import './plugins/jquery/jquery.anchorScroll.min.js';
+
 $(document).ready(function(){
 
     $(document).on('keyup','input#postcode.autocomplete, input[id^="area_postcode"].autocomplete', function(e) {

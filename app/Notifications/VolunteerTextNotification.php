@@ -9,7 +9,7 @@ use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
-use TCG\Voyager\Facades\Voyager;
+
 
 class VolunteerTextNotification extends Notification
 {
@@ -49,7 +49,7 @@ class VolunteerTextNotification extends Notification
    * @return \Illuminate\Notifications\Messages\MailMessage
    */
   public function toMail($notifiable) {
-    $site_title = Voyager::setting('site.title');
+    $site_title = config('site.title');
 
     $fromWho = (int) $this->fromUser->role_id === \App\Support\RoleIds::REQUESTER ?'Segítségkérő':'Vigyázó';
 

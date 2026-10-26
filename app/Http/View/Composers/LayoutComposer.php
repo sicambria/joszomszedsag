@@ -10,7 +10,7 @@
   use Illuminate\View\View;
   use App\User;
   use Illuminate\Support\Facades\Auth;
-  use TCG\Voyager\Models\Role;
+  use App\Role;
 
   class LayoutComposer {
     protected $current_user;
@@ -20,7 +20,8 @@
       if(Auth::user()) {
         $current_user = Auth::user();
         $current_user->volunteer_data = UserVolunteerData::where('user_id', $current_user->id)->first();
-        $current_user->user_role = optional(Role::find($current_user->role_id))->display_name;
+        $role = $current_user->role_id ? Role::find($current_user->role_id) : null;
+        $current_user->user_role = $role ? $role->display_name : null;
         $current_user->home_address = $current_user->home_address_id ? Address::find($current_user->home_address_id) : null;
         $current_user->volunteer_addresses = DB::select(
           'SELECT a.*

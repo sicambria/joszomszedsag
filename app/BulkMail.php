@@ -6,7 +6,7 @@ use App\Notifications\BulkEmail;
 use App\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
-use TCG\Voyager\Models\Role;
+use App\Role;
 
 class BulkMail extends Model {
   protected $table='bulk_mails';
@@ -17,7 +17,8 @@ class BulkMail extends Model {
     $group_names = array();
     
     foreach ($groups as &$group) {
-      $group_names[] = Role::find($group)->display_name;
+      $role = $group !== null ? Role::find($group) : null;
+      $group_names[] = $role ? $role->display_name : (string) $group;
       $users = User::where('role_id', $group)->get();
       foreach ($users as &$user) {
         $user->notify(new BulkEmail($user, $this));

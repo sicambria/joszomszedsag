@@ -55,7 +55,7 @@
                             <label for="phone">{{ __('Telefon') }}</label>
                             <span class="helper-text" data-error="{{ __('Hibás vagy üres telefonszám') }}"></span>
                         </div>
-                        @if (setting('site.facebook_profile') == 1)
+                        @if (config('site.facebook_profile') == 1)
                         <div class="input-field col s12 m4">
                             <input name="facebook_profile" id="facebook_profile" type="text" value="{{ old('facebook_profile') }}">
                             <label for="facebook_profile">{{ __('Facebook profil') }}</label>

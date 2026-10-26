@@ -47,8 +47,6 @@ CI (`.github/workflows/ci.yml`) runs all of the above on PHP 7.4 + Node 18.
 ## Project
 - Why/what/who: neighborhood self-organization, elders, families, single parents.
 - Contribute: UX/UI, web dev, testers, translators — see BACKLOG P4 for i18n plans.
-- Contact: Gergő Rostás (lead dev), Gáspár Incze (international coordinator).
-- Live: https://joszomszedsag.com/
 
 ## License
 AGPL-3.0 — see https://www.gnu.org/licenses/agpl-3.0.en.html

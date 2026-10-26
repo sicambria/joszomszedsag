@@ -22,5 +22,4 @@
         -webkit-font-smoothing: antialiased;
     }
 </style>
-<link rel="stylesheet" href="{{ url('/') }}/css/materialize.css" />
-<link rel="stylesheet" href="{{ url('/') }}/css/app.css?v={{ now()->timestamp }}" />
+@vite(['resources/sass/materialize/materialize.scss', 'resources/sass/app.scss'])

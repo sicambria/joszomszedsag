@@ -12,7 +12,7 @@
   use Illuminate\Support\Facades\Config;
   use Illuminate\Support\Facades\Lang;
   use Illuminate\Support\Facades\URL;
-  use TCG\Voyager\Facades\Voyager;
+  
   
   class UserRegisteredNotification extends Notification
   {
@@ -35,7 +35,7 @@
      */
     public function toMail($notifiable) {
       $verification_url = $this->verificationUrl($notifiable);
-      $site_title = Voyager::setting('site.title');
+      $site_title = config('site.title');
       return (new MailMessage)
         ->subject(Lang::get('Regisztráció - '.$site_title))
         ->line(Lang::get('Tisztelt '.$this->user->first_name.' '.$this->user->last_name).'!')

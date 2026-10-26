@@ -55,7 +55,9 @@ class LoginController extends Controller
   {
     $this->validateLogin($request);
     $user = User::where('email', $request->email)->first();
-    if(!$user->password) {
+    // Custom flow: accounts created via the volunteer/requester forms have
+    // no password until first login, when the given password is adopted.
+    if($user && !$user->password) {
       $user->password = Hash::make($request->password);
       $user->save();
     }

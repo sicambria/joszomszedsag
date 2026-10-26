@@ -1,1 +1,0 @@
-@include('vendor.voyager.bread.edit-add')

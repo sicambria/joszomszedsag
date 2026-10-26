@@ -1,55 +1,67 @@
 <?php
+
 namespace App\Http\Controllers;
 
-
 use App\BulkMail;
+use App\Role;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Str;
-use PhpParser\Node\Expr\Cast\Object_;
-use TCG\Voyager\Events\BreadDataAdded;
-use TCG\Voyager\Models\Role;
-use TCG\Voyager\Voyager;
 
-class BulkMailController extends \TCG\Voyager\Http\Controllers\VoyagerBaseController {
-  /**
-   * POST BRE(A)D - Store data.
-   *
-   * @param \Illuminate\Http\Request $request
-   *
-   * @return \Illuminate\Http\RedirectResponse
-   */
-  public function store(Request $request)
-  {
-    $slug = $this->getSlug($request);
-    
-    $dataType = \TCG\Voyager\Facades\Voyager::model('DataType')->where('slug', '=', $slug)->first();
-    
-    // Check permission
-    $this->authorize('add', app($dataType->model_name));
-    
-    // Validate fields with ajax
-    $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
-    $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
-    
-    event(new BreadDataAdded($dataType, $data));
-    
-    if (!$request->has('_tagging')) {
-      if (auth()->user()->can('browse', $data)) {
-        $redirect = redirect()->route("voyager.{$dataType->slug}.index");
-      } else {
-        $redirect = redirect()->back();
-      }
-      
-      return $redirect->with([
-        'message'    => __('voyager::generic.successfully_added_new')." {$dataType->getTranslatedAttribute('display_name_singular')}",
-        'alert-type' => 'success',
-      ]);
-    } else {
-      return response()->json(['success' => true, 'data' => $data]);
+/**
+ * Bespoke replacement for the Voyager bulk_mails BREAD removed in MOD-02.
+ * Admin-only (see routes); sending notifies every user in the chosen roles.
+ */
+class BulkMailController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('auth');
     }
-  }
+
+    public function index()
+    {
+        $this->authorizeAdmin();
+
+        return view('dashboard.bulk_mail.index')->with([
+            'mails' => BulkMail::orderByDesc('id')->paginate(20),
+        ]);
+    }
+
+    public function create()
+    {
+        $this->authorizeAdmin();
+
+        return view('dashboard.bulk_mail.create')->with([
+            'roles' => Role::all(),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $this->authorizeAdmin();
+
+        $validated = $this->validate($request, [
+            'groups' => 'required|array|min:1',
+            'groups.*' => 'integer|exists:roles,id',
+            'subject' => 'required|string|max:255',
+            'mail' => 'required|string|max:10000',
+        ]);
+
+        $bulkMail = new BulkMail();
+        $bulkMail->groups = json_encode(array_map('intval', $validated['groups']));
+        $bulkMail->subject = strip_tags($validated['subject']);
+        $bulkMail->mail = $validated['mail'];
+        $bulkMail->save();
+
+        return redirect()
+            ->route('bulk_mail_index')
+            ->with(['message' => 'Körlevél elküldve.', 'alert-type' => 'success']);
+    }
+
+    private function authorizeAdmin(): void
+    {
+        if (! Auth::user() || ! Auth::user()->isAdmin()) {
+            abort(403);
+        }
+    }
 }

@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Lang;
-use TCG\Voyager\Facades\Voyager;
+
 
 class SupportRequest extends Notification
 {
@@ -42,7 +42,7 @@ class SupportRequest extends Notification
    * @return \Illuminate\Notifications\Messages\MailMessage
    */
   public function toMail($notifiable) {
-    $site_title = Voyager::setting('site.title');
+    $site_title = config('site.title');
     return (new MailMessage)
       ->subject(Lang::get('Új segítségkérés kérelem a körzetében - '.$site_title))
       ->greeting(Lang::get('Tisztelt '.$this->user->first_name.' '.$this->user->last_name).'!')

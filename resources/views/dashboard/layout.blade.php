@@ -15,17 +15,16 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>@yield('site_title', 'Kezdőlap') - {{ Voyager::setting('site.title') }}</title>
+    <title>@yield('site_title', 'Kezdőlap') - {{ config('site.title') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, shrink-to-fit=no" />
-    <meta name="description" content="{{ Voyager::setting('site.description') }}">
+    <meta name="description" content="{{ config('site.description') }}">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="env" content="{{ App::environment() }}">
     <meta name="token" content="{{ Session::token() }}">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="{{ asset('css/materialize.css') }}" />
-    <link href="{{ asset('css/dashboard/main.css') }}" rel="stylesheet" />
-    <link href="{{ asset('css/dashboard/style.css') }}" rel="stylesheet" />
+    @vite(['resources/sass/materialize/materialize.scss', 'resources/sass/dashboard/style.scss'])
+    <link href="{{ asset('vendor/dashboard/main.css') }}" rel="stylesheet" />
 </head>
 <body>
 <div class="app-container app-theme-white body-tabs-shadow fixed-sidebar fixed-header">
@@ -53,11 +52,9 @@
         </div>
     </div>
 </div>
-<script src="{{ asset('js/app.js') }}"></script>
-<script src="{{ asset('js/materialize.min.js') }}"></script>
+@vite(['resources/js/app.js', 'resources/js/plugins/dashboard/script.js'])
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.js"></script>
-<script type="text/javascript" src="{{ asset('js/dashboard/main.js') }}"></script>
-<script type="text/javascript" src="{{ asset('js/plugins/dashboard/script.js') }}"></script>
+<script type="text/javascript" src="{{ asset('vendor/dashboard/main.js') }}"></script>
 @yield('dashboard_js')
 </body>
 </html>

@@ -51,15 +51,15 @@
             </div>
         </div>
         <div class="row">
-            <div class="input-field col s12 @if (setting('site.facebook_profile') == 1) l4 @else l6 @endif">
+            <div class="input-field col s12 @if (config('site.facebook_profile') == 1) l4 @else l6 @endif">
                 <input required disabled name="email" id="email" type="email" class="validate" value="{{ $current_user->email }}">
                 <label for="email">Email</label>
             </div>
-            <div class="input-field col s12 @if (setting('site.facebook_profile') == 1) l4 @else l6 @endif">
+            <div class="input-field col s12 @if (config('site.facebook_profile') == 1) l4 @else l6 @endif">
                 <input required disabled name="phone" id="phone" type="text" class="validate" value="{{ $current_user->phone_number }}">
                 <label for="phone">Telefon</label>
             </div>
-            @if (setting('site.facebook_profile') == 1)
+            @if (config('site.facebook_profile') == 1)
                 <div class="input-field col s12 l4">
                     <input disabled name="facebook_profile" id="facebook_profile" type="text" value="{{ $current_user->facebook_profile }}">
                     <label for="facebook_profile">Facebook profil</label>
