@@ -51,8 +51,8 @@ CI: `.github/workflows/ci.yml` runs all of the above on PHP 8.3 + Node 20, and f
 5. `APP_DEBUG=false` in any non-local env. `SESSION_SECURE_COOKIE=true` behind HTTPS.
 
 ## Remotes (standing user preference)
-- **Never touch `upstream` (`Kr4z4r/joszomszedsag`)**: no push, no PR, no fetch-required workflows against it.
-- Work only with `origin` (`sicambria/joszomszedsag`): commit and push to `origin/master` unless told otherwise.
+- There is no `upstream` anymore — `origin` (`sicambria/joszomszedsag`) is the only remote.
+- Work only on `main`: commit and push to `origin/main` unless told otherwise.
 
 ## Style
 - PHP: Laravel Pint default (tabs→spaces, see `.editorconfig`); `php -l` clean.
