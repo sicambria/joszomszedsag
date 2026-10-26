@@ -55,5 +55,9 @@ CI: `.github/workflows/ci.yml` runs all of the above on PHP 7.4 + Node 18.
 git config core.hooksPath hooks
 ```
 
+## Remotes (standing user preference)
+- **Never touch `upstream` (`Kr4z4r/joszomszedsag`)**: no push, no PR, no fetch-required workflows against it.
+- Work only with `origin` (`sicambria/joszomszedsag`): commit and push to `origin/master` unless told otherwise.
+
 ## Deferred modernization
 Do NOT upgrade Laravel/Voyager/Mix in this branch. Plan lives in `docs/UPGRADE-PLAN.md` (Laravel 12, Filament, Vite). Keep changes backport-safe to Laravel 7 / PHP 7.4 syntax (no PHP 8-only syntax, no named args).
