@@ -1,6 +1,8 @@
-# BACKLOG — jószomszédság full refresh (harden-in-place)
+# BACKLOG — jószomszédság full refresh (EXECUTED: harden + major upgrade)
 
-> Scope decision (2026-10-26): **harden in place** on Laravel 7 / PHP 7.4. Full Laravel 12 + Voyager-replacement is tracked as MOD-01…MOD-06 but NOT executed here.
+> Scope decision (2026-10-26, first pass): **harden in place** on Laravel 7 / PHP 7.4.
+> Scope extension (2026-10-27): **full major upgrade executed** — Laravel 12 / PHP 8.3 / Vite 7,
+> Voyager removed, bespoke admin retained. MOD-01…MOD-06 below are now `done` except noted follow-ups.
 > Conventions: `SEC` = security, `BUG` = correctness, `REL` = reliability/ops, `DX` = dev-experience/docs/tests/CI, `MOD` = modernization (deferred).
 > Status values: `done` / `todo` / `deferred`.
 
@@ -74,14 +76,14 @@
 - [x] DX-08 Empty `hooks/hooks.json`
       Fix: `hooks/pre-commit` (php -l + eslint quick check) documented in AGENTS.md.
 
-## P4 — Modernization (DEFERRED, not in this pass)
+## P4 — Modernization (EXECUTED 2026-10-27)
 
-- [ ] MOD-01 Laravel 7 → 12, PHP 7.4 → 8.3 (see `docs/UPGRADE-PLAN.md`).
-- [ ] MOD-02 Replace abandoned `tcg/voyager` (no Laravel 11/12 support) with Filament/Nova/backpack or bespoke admin.
-- [ ] MOD-03 Replace raw SQL with Eloquent relations + query builder everywhere; add FK constraints (BREAD tables currently seed-only, no migrations).
-- [ ] MOD-04 Frontend: Mix 5/webpack 4 → Vite + Tailwind, remove vendored Materialize/jQuery copies, `mix()` → `vite()`.
-- [ ] MOD-05 Auth: email verification enforcement audit, 2FA/TURNstile or reCAPTCHA on public forms, notification queue.
-- [ ] MOD-06 i18n: extract Hungarian strings to `resources/lang/hu|en`, crowdsourced translation pipeline.
+- [x] MOD-01 Laravel 7 → 12, PHP 7.4 → 8.3 (see `docs/UPGRADE-PLAN.md`).
+- [x] MOD-02 Replace abandoned `tcg/voyager` (no Laravel 11/12 support) with Filament/Nova/backpack or bespoke admin.
+- [x] MOD-03 Replace raw SQL with Eloquent relations + query builder everywhere; add FK constraints (BREAD tables currently seed-only, no migrations).
+- [x] MOD-04 Frontend: Mix 5/webpack 4 → Vite + Tailwind, remove vendored Materialize/jQuery copies, `mix()` → `vite()`.
+- [x] MOD-05 Auth: explicit auth routes (no Auth::routes magic), `MustVerifyEmail` + signed verify URLs kept, throttle on resend, notifications via sync/array in dev + `database` queue default in prod config. Follow-up (not done): 2FA/Turnstile on public forms, queued mail workers in prod.
+- [x] MOD-06 i18n: extract Hungarian strings to `resources/lang/hu|en`, crowdsourced translation pipeline.
 
 ## Verification ("green")
 

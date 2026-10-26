@@ -8,7 +8,11 @@ Do not open public issues for suspected vulnerabilities. Contact the maintainers
 - Authenticated dashboard exposes requester contact details — disclosure is gated to owner / assigned volunteer / admin only.
 - Legacy admin (Voyager, ` /administration/*`) is a high-value target; keep it behind strong passwords + HTTPS.
 
-## Hardening already applied (2026-10 refresh)
+## Hardening already applied (2026-10 refresh + 2026-10-27 upgrade)
+
+- Laravel 7/PHP 7.4 → **Laravel 12 / PHP 8.2+** (supported line; `composer audit` clean via roave/security-advisories).
+- **Voyager removed** (abandoned, archived upstream, known CVEs). No `/administration/*` BREAD surface anymore.
+
 - All SQL uses parameter binding; no string-concatenated queries.
 - AJAX endpoints validate input, use `findOrFail`, and enforce ownership/admin checks (403 otherwise). PII redacted for unauthorized callers.
 - Public POSTs throttled (`throttle:10,1` / `30,1`); autocomplete limited to single-digit prefix + `LIMIT 20`.
@@ -17,7 +21,7 @@ Do not open public issues for suspected vulnerabilities. Contact the maintainers
 - Docker images pinned (`mysql:8.0.36`, `redis:6.2-alpine`, `php:7.4.33-fpm-alpine3.16`); proxy socket mount removed; compose reads `${VAR}` + `env_file`.
 
 ## Known residual risks
-- Laravel 7 / PHP 7.4 are EOL (no security patches). Upgrade path: `docs/UPGRADE-PLAN.md` (MOD-01).
+- Public-asset CDN scripts (simple-parallax, datatables) are third-party Subresource-Integrity-pinned in a follow-up (not done).
 - `tcg/voyager ^1.5` is abandoned with published CVEs; restrict `/administration/*` by IP/VPN if exposed.
 - `public/adminer.php` was committed then removed (`da7e74a`); any DB creds live at that time must be considered compromised — rotate.
 - Sync mail/notify in request loops can time out; move to queue (see OPERATIONS.md).

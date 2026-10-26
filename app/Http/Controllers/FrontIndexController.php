@@ -134,6 +134,7 @@ class FrontIndexController extends Controller {
       abort(422, 'Invalid role.');
     }
     $user = new User();
+    $user->name = trim($request->first_name.' '.$request->last_name);
     $user->email = $request->email;
     $user->role_id = $roleId;
     $user->first_name = $request->first_name;
@@ -246,6 +247,11 @@ class FrontIndexController extends Controller {
     );
     $volunteer_ids = array();
     foreach ($volunteer_data as $vd) {
+      // RIGHT JOIN yields address rows with NULL user_id when no volunteer
+      // covers them — those must not count as matches.
+      if($vd->user_id === null) {
+        continue;
+      }
       if($vd->house_number && $vd->house_number_2) {
         if(($user_address->house_number >= $vd->house_number && $user_address->house_number <= $vd->house_number_2 )) {
           $volunteer_ids[] = $vd->user_id;

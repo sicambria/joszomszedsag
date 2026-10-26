@@ -10,6 +10,8 @@ use App\Role;
 
 class BulkMail extends Model {
   protected $table='bulk_mails';
+
+  protected $fillable = ['groups', 'subject', 'mail'];
   
   public function save(array $options = []) {
     $this->user_id = Auth::user()->id;

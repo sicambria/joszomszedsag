@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import axios from 'axios';
 import './plugins/materialize/js/bin/materialize.min.js';
 import './plugins/jquery/jquery.anchorScroll.min.js';
 
@@ -72,7 +73,7 @@ $(document).ready(function(){
             ac_post_codes= {};
 
             for (var key in parsed) {
-                if(parsed.hasOwnProperty(key)) {
+                if(Object.hasOwn(parsed, key)) {
                     ac_post_codes[parsed[key]['post_code']] = null;
                 }
             }
@@ -86,7 +87,7 @@ $(document).ready(function(){
     // Autocomplete for street names
     var streetAutocomplete = function (element) {
         try {
-            const promise = axios.get('https://nominatim.openstreetmap.org/search?accept-language=hu,en', {
+            axios.get('https://nominatim.openstreetmap.org/search?accept-language=hu,en', {
                 params: {
                     format: 'json',
                     city: element.parent('.input-field').prev('.input-field').find('input').val(),

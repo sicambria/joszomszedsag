@@ -1,7 +1,6 @@
 version: "3.8"
 
 services:
-  # Caching service
   mysql:
     image: mysql:8.0.36
     restart: unless-stopped
@@ -28,8 +27,7 @@ services:
     volumes:
       - redis-data:/data
 
-  # Application: prefer building locally (docker/build). The public
-  # adrian7/joszomszedsag-v1.0 image is opaque — do not use in production.
+  # Application: built from docker/build (PHP 8.3, Laravel 12).
   app:
     build: docker/build
     depends_on:
@@ -49,6 +47,17 @@ services:
       REDIS_HOST: redis
     volumes:
       - .:/var/www
+
+  # One-shot test runner (PHP 8.3 + pcov): docker compose --profile test run --rm tests
+  tests:
+    build:
+      context: .
+      dockerfile: docker/dev/Dockerfile
+    profiles: ["test"]
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: ["vendor/bin/phpunit", "--coverage-text"]
 
 volumes:
   mysql-data:

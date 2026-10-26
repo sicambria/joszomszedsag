@@ -7,9 +7,18 @@ use App\UserSupportData;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+// NOTE: tests creating user_data_support rows must seed lookup tables
+// (help_types FK) — see setUp() below.
+
 class VolunteerAuthorizationTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(\Database\Seeders\DatabaseSeeder::class);
+    }
 
     public function test_guest_cannot_hit_volunteer_ajax()
     {

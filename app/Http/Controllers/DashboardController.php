@@ -710,6 +710,11 @@ class DashboardController extends \App\Http\Controllers\Controller {
     );
     $volunteer_ids = array();
     foreach ($volunteer_data as $vd) {
+      // RIGHT JOIN yields address rows with NULL user_id when no volunteer
+      // covers them — those must not count as matches.
+      if($vd->user_id === null) {
+        continue;
+      }
       if($vd->house_number && $vd->house_number_2) {
         if(($user_address->house_number >= $vd->house_number && $user_address->house_number <= $vd->house_number_2 )) {
           $volunteer_ids[] = $vd->user_id;

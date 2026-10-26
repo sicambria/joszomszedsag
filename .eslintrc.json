@@ -1,6 +1,12 @@
 {
-    "env": { "browser": true, "jquery": true, "es6": true },
+    "env": { "browser": true, "jquery": true, "es2022": true },
+    "parserOptions": { "ecmaVersion": 2022, "sourceType": "module" },
     "extends": "eslint:recommended",
-    "parserOptions": { "ecmaVersion": 2019, "sourceType": "script" },
+    "globals": {
+        "M": "readonly",
+        "ajaxPostRoute": "readonly",
+        "ajaxMoreInfoRoute": "readonly",
+        "csrfToken": "readonly"
+    },
     "rules": { "no-unused-vars": ["warn", { "args": "none" }] }
 }

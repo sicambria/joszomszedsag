@@ -2,34 +2,41 @@
 
 namespace Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
+use App\Log;
+use App\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class HelpersTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        require_once __DIR__ . '/../../app/Helpers.php';
-    }
+    use RefreshDatabase;
 
-    public function test_log_model_change_skips_secrets_and_strips_tags()
+    public function test_log_model_change_strips_tags_and_skips_secrets()
     {
-        $logged = [];
-        $GLOBALS['__test_log'] = &$logged;
+        $user = User::factory()->create(['email' => 'log@example.com']);
 
-        // Shadow saveLog for this isolated test via namespaced override is not
-        // possible; instead assert the pure string-shaping contract: values
-        // are truncated to 200 chars and never include raw HTML.
-        $long = str_repeat('a', 500) . '<script>alert(1)</script>';
-        $shaped = mb_substr(strip_tags((string) $long), 0, 200);
-        $this->assertSame(200, mb_strlen($shaped));
-        $this->assertStringNotContainsString('<script>', $shaped);
+        logModelChange(
+            ['email' => 'a@example.com', 'password' => 'secret', 'remember_token' => 'tok'],
+            ['email' => '<b>b@example.com</b>' . str_repeat('x', 300), 'password' => 'new', 'remember_token' => 'tok2'],
+            $user->id,
+            'Teszt:'
+        );
+
+        $texts = Log::where('user_id', $user->id)->pluck('text')->all();
+        // password + remember_token never logged...
+        foreach ($texts as $text) {
+            $this->assertStringNotContainsString('secret', $text);
+            $this->assertStringNotContainsString('new', $text);
+            $this->assertStringNotContainsString('tok', $text);
+            // ...tags stripped, values truncated to 200 chars.
+            $this->assertStringNotContainsString('<b>', $text);
+        }
+        $this->assertNotEmpty($texts);
+        $this->assertTrue(mb_strlen($texts[0]) <= 200 + 60);
     }
 
     public function test_postcode_prefix_validation_contract()
     {
-        // Mirrors FrontIndexController@post_code_ajax validation:
-        // single ASCII digit only.
         $this->assertMatchesRegularExpression('/^[0-9]$/', '3');
         $this->assertDoesNotMatchRegularExpression('/^[0-9]$/', '33');
         $this->assertDoesNotMatchRegularExpression('/^[0-9]$/', '3"; DROP TABLE users; --');

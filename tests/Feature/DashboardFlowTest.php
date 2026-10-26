@@ -69,6 +69,13 @@ class DashboardFlowTest extends TestCase
     public function test_save_profile_updates_user_and_volunteer_data()
     {
         $user = $this->makeUser();
+        \App\UserVolunteerData::create([
+            'user_id' => $user->id,
+            'has_car' => 0,
+            'availability' => 'Délelőtt',
+            'helping_groups' => json_encode([1]),
+            'status' => 1,
+        ]);
         $this->be($user);
 
         $response = $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class)

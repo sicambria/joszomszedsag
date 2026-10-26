@@ -28,7 +28,10 @@
             <div class="col l4 m4 s12">
                 <h5>{{ __('Hasznos linkek') }}</h5>
                 <ul>
-                    {{ menu('footer') }}
+                    <li><a href="{{ route('home') }}">{{ __('Kezdőlap') }}</a></li>
+                    <li><a href="{{ route('legal') }}">{{ __('Jogi nyilatkozat') }}</a></li>
+                    <li><a href="{{ route('privacy') }}">{{ __('Adatvédelmi nyilatkozat') }}</a></li>
+                    <li><a href="{{ route('cookie') }}">{{ __('Cookie szabályzat') }}</a></li>
                 </ul>
             </div>
         </div>

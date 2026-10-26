@@ -7,9 +7,9 @@ Open-source multilingual portal for neighborhood cooperation (volunteers ↔ peo
 ![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)
 
 ## Stack
-Laravel 7 (PHP 7.4 in CI), MySQL 8, Redis 6, jQuery/Materialize via Laravel Mix 5.
+Laravel 12 (PHP 8.3 in CI/dev container), MySQL 8, Redis 6, Vite 7 + jQuery/Materialize.
 
-> Host PHP here is 8.5 — **run the app via CI (PHP 7.4) or `docker compose`**, not local `php artisan`.
+> Host PHP here is 8.5 — **run PHP tooling via the `joszomszedsag-dev` container** (see AGENTS.md), or `docker compose` for runtime.
 
 ## Quickstart (native)
 ```bash
@@ -17,7 +17,7 @@ cp .env.example .env
 composer install
 php artisan key:generate
 php artisan migrate --seed
-npm ci && npm run dev
+npm ci && npm run build
 php artisan serve
 ```
 
@@ -30,12 +30,12 @@ docker compose up --build
 
 ## Testing / lint
 ```bash
-vendor/bin/phpunit --testdox
+docker run --rm -v .:/app -w /app joszomszedsag-dev vendor/bin/phpunit --coverage-text
 find app routes database -name '*.php' -print0 | xargs -0 -n1 php -l
-npm ci && npm run production
-npm audit --audit-level=high
+npm ci && npm run build
+npm run lint && npm audit --audit-level=high
 ```
-CI (`.github/workflows/ci.yml`) runs all of the above on PHP 7.4 + Node 18.
+CI (`.github/workflows/ci.yml`) runs all of the above on PHP 8.3 + Node 20 and fails under 50% line coverage (currently ~70%).
 
 ## Docs
 - `AGENTS.md` — contributor/agent guide (read first).

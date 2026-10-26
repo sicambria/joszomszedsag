@@ -24,7 +24,7 @@
         <div class="app-sidebar__inner">
             <ul class="vertical-nav-menu">
                 <li class="app-sidebar__heading"></li>
-                {{ menu('user_admin', 'dashboard.partials.menu') }}
+                {{ view('dashboard.partials.menu') }}
             </ul>
         </div>
     </div>

@@ -21,9 +21,16 @@ class NotificationsTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // Seeds help_types (FK for user_data_support factory rows).
+        $this->seed(\Database\Seeders\DatabaseSeeder::class);
+    }
+
     public function test_all_notifications_render_mail_without_exception()
     {
-        $user = User::factory()->make(['first_name' => 'Teszt', 'last_name' => 'Elek', 'display_name' => 't']);
+        $user = User::factory()->create(['first_name' => 'Teszt', 'last_name' => 'Elek', 'display_name' => 't']);
         $from = User::factory()->make(['first_name' => 'Küldő', 'last_name' => 'Béla', 'display_name' => 'kb']);
 
         $cases = [
