@@ -64,7 +64,7 @@ class VolunteerTextNotification extends Notification
       ->greeting(Lang::get('Tisztelt '.$this->user->first_name.' '.$this->user->last_name).'!')
       ->line(Lang::get($this->fromUser->display_name.' '.$fromWho.' üzenetet küldött Önnek a '.$displayAddress.' címről:'))
       ->line(Lang::get($this->text))
-      ->action(Lang::get('Válaszolok'), route('admin_volunteers_list', array('to_user_id' => Auth::user()->id)));
+      ->action(Lang::get('Válaszolok'), route('admin_volunteers_list', array('to_user_id' => Auth::id())));
   }
   
   /**
